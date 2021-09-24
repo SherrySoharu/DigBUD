@@ -1,0 +1,236 @@
+<% layout('./layouts/boilerplate.ejs') %>
+
+<div class="text-center mt-3">
+  <img style="height: 8em; width: 8em; border-radius: 50%; border: 4px solid white;"
+    <% if(!userPic.length){ %>
+    src="https://cdn.pixabay.com/photo/2017/06/13/12/53/profile-2398782_1280.png"
+    <% }else{ %> 
+      src="<%= userPic[0].pic.url %>"<% } %>
+      alt="..." />
+      <h2><%= user.username %></h2>
+      <div>
+        <h5 class="d-inline">Followers</h5>
+        <h5 class="d-inline ml-4">Following</h5>
+      </div>
+      <div>
+        <!-- Follower trigger modal -->
+    <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#follower">
+      <%= userFollowers.length %>
+    </button>
+    
+    <!-- Folower Modal -->
+    <div class="modal fade" id="follower" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="staticBackdropLabel">Followers List</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <% for(let user of followerUsernames){ %>
+              <% const bio = userFollowerPics.filter(el=>el.author.toString() === user._id.toString()) %>
+              <div class="border d-flex justify-content-between mb-1 p-1" style="border-radius: 5px;">
+                <div>
+                <% if(bio[0]){ %>
+                  <img style="height: 2em; width: 2em; border-radius: 50%;" src="<%= bio[0].pic.url %>" alt="...">
+                  <% }else{ %>
+                    <img style="height: 2em; width: 2em; border-radius: 50%;" src="https://cdn.pixabay.com/photo/2017/06/13/12/53/profile-2398782_1280.png" alt="...">
+                    <% } %>
+                    <% const checkFollowee = check.map(el=>el.followeeId.toString()) %>
+                    <% if(user._id.toString() === currentUser._id.toString()){ %>
+                <a href="/home/profile"><p class="d-inline"><%= user.username %></p></a>
+                <% }else{ %>
+                  <a href="/home/<%= user._id %>"><p class="d-inline"><%= user.username %></p></a>
+                  <% } %> 
+              </div>
+              <% if(user._id.toString() === currentUser._id.toString()){ %>
+                <% }else{ %> 
+              <% if(checkFollowee.includes(user._id.toString())){ %>
+                <form action="/home/recommend/<%= user._id %>?_method=DELETE" method="POST">
+                  <button class="btn btn-danger btn-sm">Unfollow</button>
+                </form>
+                <% }else{ %>
+                <form action="/home/recommend/<%= user._id %>" method="POST">
+                <button class="btn btn-primary btn-sm">Follow</button>
+              </form>
+              <% } %>
+              <% } %> 
+              </div>
+              <% } %>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    
+        <!-- Following trigger modal -->
+        <button type="button" class="btn btn-info" style="margin-left:4.7em;" data-bs-toggle="modal" data-bs-target="#following">
+          <%= userFollowing.length %>
+        </button>
+        <!--Following Modal -->
+    <div class="modal fade" id="following" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="staticBackdropLabel">Following List</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <% for(let user of followingUsernames){ %>
+              <% const bio = userFollowingPics.filter(el=>el.author.toString() === user._id.toString()) %>
+              <div class="border d-flex justify-content-between mb-1 p-1" style="border-radius: 5px;">
+                <div>
+                <% if(bio[0]){ %>
+                  <img style="height: 2em; width: 2em; border-radius: 50%;" src="<%= bio[0].pic.url %>" alt="...">
+                  <% }else{ %>
+                    <img style="height: 2em; width: 2em; border-radius: 50%;" src="https://cdn.pixabay.com/photo/2017/06/13/12/53/profile-2398782_1280.png" alt="...">
+                    <% } %> 
+                    <% const checkFollowee = check.map(el=>el.followeeId.toString()) %>
+                    <% if(user._id.toString() === currentUser._id.toString()){ %>
+                <a style="text-decoration: none;" href="/home/profile"><p class="d-inline"><%= user.username %></p></a>
+                <% }else{ %>
+                  <a href="/home/<%= user._id %>"><p class="d-inline"><%= user.username %></p></a>
+                  <% } %>
+              </div>
+              <% if(user._id.toString() === currentUser._id.toString()){ %>
+                <% }else{ %>
+              <% if(checkFollowee.includes(user._id.toString())){ %>
+                <form action="/home/recommend/<%= user._id %>?_method=DELETE" method="POST">
+                  <button class="btn btn-danger btn-sm">Unfollow</button>
+                </form>
+                <% }else{ %>
+                <form action="/home/recommend/<%= user._id %>" method="POST">
+                <button class="btn btn-primary btn-sm">Follow</button>
+              </form>
+              <% } %>
+              <% } %>
+              </div>
+              <% } %>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+      </div>
+      <% const checkFollowee = check.map(el=>el.followeeId.toString()) %>
+  <% if(checkFollowee.includes(user._id.toString())){ %> 
+  <form action="/home/recommend/<%= user._id %>?_method=DELETE" method="POST">
+  <button class="btn btn-danger d-block mx-auto my-3">Unfollow</button>
+</form>
+<% }else{ %> 
+  <form action="/home/recommend/<%= user._id %>" method="POST">
+  <button class="btn btn-primary d-block mx-auto my-3">Follow</button>
+</form>
+<% } %>
+
+
+    <% if(userBio.length){ %>
+
+    <!-- //this is place holder -->
+  
+    <h4><%= userBio[0].belongsTo %></h4>
+    <p><%= userBio[0].userDescription %></p>
+    <p class="text-muted"><%= userBio[0].workStatus %></p>
+    <% }else{ %>
+        <h1 class="text-center text-danger">No Bio</h1>
+        <p class="text-center text-muted">this user dont have bio yet...</p>
+      <% } %> 
+    
+      <% const checkPrivate = userFollowers.filter(follower=>follower.followerId.toString() === currentUser._id.toString()) %>
+    <% if(user.isPrivate === 'true' && !checkPrivate.length){ %>
+      <!-- <h1>Private Account</h1> -->
+      <img src="https://i.pinimg.com/originals/6d/da/c3/6ddac38ec4f96adc014af97011270c8c.jpg" alt="some image showing that its a private account">
+      <% }else{ %> 
+    <% for(let i=userPosts.length-1; i>=0; i--){ %>
+    <div
+      class="shadow-lg p-3 mb-5 bg-dark rounded text-center mx-auto"
+      style="width: 30em"
+    >
+      <div class="mb-1">
+        <img style="height: 2em; width: 2em; border-radius: 50%; border: 2px solid white;"
+        <% if(!userPic.length){ %>
+       src="https://cdn.pixabay.com/photo/2017/06/13/12/53/profile-2398782_1280.png"
+    <% }else{ %>
+      src="<%= userPic[0].pic.url %>" <% } %>
+      alt="..." />
+        <p style="color: white;" class="d-inline"><%= user.username %></p>
+      </div>
+
+
+
+      <div
+      id="carouselExampleControls"
+      class="carousel slide"
+      data-ride="carousel"
+    >
+      <div class="carousel-inner">
+        <% userPosts[i].post.forEach((img,i)=>{ %>
+        <div class="carousel-item <%= i===0 ? 'active' : '' %>">
+          <img style="margin-top: 0.6em;" class="d-block w-100" src="<%= img.url %>" alt="..." />
+        </div>
+        <% }) %>
+      </div>
+      <% if(userPosts[i].post.length>1){ %>
+      <a
+        class="carousel-control-prev"
+        href="#carouselExampleControls"
+        role="button"
+        data-slide="prev"
+      >
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+      </a>
+      <a
+        class="carousel-control-next"
+        href="#carouselExampleControls"
+        role="button"
+        data-slide="next"
+      >
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+      </a>
+      <% } %>
+    </div>
+
+
+
+      <p style="color: white;" id="showLikes"><%= userPosts[i].likes %></p>
+      <div class="mb-2">
+        <button id="like" class="btn btn-primary">Like</button>
+        <button id="commentbtn" class="btn btn-info ml-3">Comment</button>
+      </div>
+      <p style="color: white;"><%= userPosts[i].description %></p>
+      <iframe id="commentframe" class="text-center" width="420px" height="400px" src="/home/<%= userPosts[i]._id %>/comments" frameborder="0" style="border: 1px solid grey; display: none;"></iframe>
+    </div>
+    <% } %>
+    <% } %> 
+  </div>
+
+  <script>
+    let isPressed = false;
+    let commentFrame = document.querySelectorAll('#commentframe');
+    let commentBtns = document.querySelectorAll('#commentbtn');
+    for(let i=0; i<commentBtns.length; i++){
+      commentBtns[i].addEventListener('click',function(e){
+        if(!isPressed){
+          commentFrame[i].style.display = 'inline';
+          console.log('clicked upper');
+          commentFrame[i].scrollIntoView({
+            behavior:'smooth',
+            block:'nearest'
+          });
+          isPressed = true;
+        }else{
+          commentFrame[i].style.display = 'none';
+          isPressed = false;
+          console.log('clicked lower');
+        };
+        });
+    };
+
+  </script>

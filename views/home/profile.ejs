@@ -1,0 +1,277 @@
+<%layout('./layouts/boilerplate.ejs') %>
+
+
+<div class="text-center">
+  <% if(bio.length){ %>
+  <img class="mt-3" style="height: 8em; width: 8em; border-radius: 50%; border: 4px solid white; margin-left: 3.5em;"
+  <% if(!profilePic){ %>
+  src="https://cdn.pixabay.com/photo/2017/06/13/12/53/profile-2398782_1280.png"
+  <% }else{ %>
+    src="<%= profilePic.pic.url %>"<% } %>
+    alt="..." />
+    <div class="d-inline w-50">
+    <button style="position: relative; bottom: 40px; right: 25px;" type="button" class="btn" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+      <svg style="height: 1.5em; width: 1.5em;" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+        <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+        <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+      </svg>
+      <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+      <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+    </svg></button>
+    <!-- Modal -->
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">
+          <% if(!profilePic){ %> 
+          Add Profile Picture
+          <% }else{ %>
+            Update Profile Picture
+            <% } %> 
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form
+        <% if(!profilePic){ %>
+          action="/home/profilePic"
+        <% }else{ %>
+          action="/home/profilePic?_method=PUT"
+          <% } %>
+        method="POST"
+        enctype="multipart/form-data">
+          <label for="pic" class="d-block h5">Select an Image</label>
+          <input class="mx-auto mb-3" type="file" id="pic" name="pic">
+          <button class="btn btn-success d-block mx-auto" type="submit">Add</button>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+  </div>
+  <h2><%= user.username %></h2>
+  <div>
+    <h5 class="d-inline">Followers</h5>
+    <h5 class="d-inline ml-4">Following</h5>
+  </div>
+  <div>
+        <!-- Followers trigger modal -->
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#follower">
+      <%= follows.length %>
+    </button>
+    <!-- Folower Modal -->
+<div class="modal fade" id="follower" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Followers List</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <% for(let user of followerUsernames){ %>
+          <% const bio = followerPics.filter(el=>el.author.toString() === user._id.toString()) %>
+          <div class="border d-flex justify-content-between mb-1 p-1" style="border-radius: 5px;">
+            <div>
+            <% if(bio.length){ %>
+              <img style="height: 2em; width: 2em; border-radius: 50%;" src="<%= bio[0].pic.url %>" alt="...">
+              <% }else{ %>
+                <img style="height: 2em; width: 2em; border-radius: 50%;" src="https://cdn.pixabay.com/photo/2017/06/13/12/53/profile-2398782_1280.png" alt="...">
+                <% } %>
+                <% const checkFollowee = followings.map(el=>el.followeeId.toString()) %>
+          <a href="/home/<%= user._id %>"><p class="d-inline"><%= user.username %></p></a>
+              </div>
+              <% if(user._id.toString() === currentUser._id.toString()){ %>
+                <% }else{ %>
+              <% if(checkFollowee.includes(user._id.toString())){ %>
+                <form action="/home/recommend/<%= user._id %>?_method=DELETE" method="POST">
+                  <button class="btn btn-danger btn-sm">Unfollow</button>
+                </form>
+                <% }else{ %>
+                <form action="/home/recommend/<%= user._id %>" method="POST">
+                <button class="btn btn-primary btn-sm">Follow</button>
+              </form>
+              <% } %>
+              <% } %>
+        </div>
+          <% } %>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+        <!-- Following trigger modal -->
+    <button type="button" class="btn btn-primary" style="margin-left:4.7em;" data-bs-toggle="modal" data-bs-target="#following">
+      <%= followings.length %>
+    </button>
+    <!--Following Modal -->
+<div class="modal fade" id="following" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Following List</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <% for(let user of followingUsernames){ %>
+          <% const bio = followingPics.filter(el=>el.author.toString() === user._id.toString()) %>
+          <div class="border d-flex justify-content-between mb-1 p-1" style="border-radius: 5px;">
+            <div>
+            <% if(bio.length){ %>
+              <img style="height: 2em; width: 2em; border-radius: 50%;" src="<%= bio[0].pic.url %>" alt="...">
+              <% }else{ %>
+                <img style="height: 2em; width: 2em; border-radius: 50%;" src="https://cdn.pixabay.com/photo/2017/06/13/12/53/profile-2398782_1280.png" alt="...">
+                <% } %>
+          <a href="/home/<%= user._id %>"><p class="d-inline"><%= user.username %></p></a>
+              </div>
+              <form action="/home/recommend/<%= user._id %>?_method=DELETE" method="POST">
+                <button class="btn btn-danger btn-sm">Unfollow</button>
+              </form>
+        </div>
+          <% } %>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+  <h4><%= bio[0].belongsTo %></h4>
+  <p><%= bio[0].userDescription %></p>
+  <p class="text-muted"><%= bio[0].workStatus %></p>
+  <% }else{ %>
+    <div class="mt-5">
+    <a style="text-decoration: none;" href="/home/settings/bio"><h1 class="text-center">Add your Bio</h1></a>
+    <p class="text-muted text-center">by adding your bio you can see your followers and following...</p>
+  </div>
+    <% } %> 
+
+  <!-- POSTS start here -->
+  
+  <% if(posts.length){ %>
+  <% for(let i=posts.length-1; i>=0; i--){ %>
+  <div
+    class="shadow-lg p-3 mb-5 bg-dark rounded text-center mx-auto"
+    style="width: 30em">
+    <div class="mb-2">
+    <div class="mb-1 d-inline ">
+      <img style="height: 2.5em; width: 2.5em; border-radius: 50%; border: 2px solid white;"
+      <% if(!profilePic){ %>
+     src="https://cdn.pixabay.com/photo/2017/06/13/12/53/profile-2398782_1280.png"
+  <% }else{ %> 
+    src="<%= profilePic.pic.url %>" <% } %>
+    alt="..." />
+      <p class="d-inline" style="color: white;"><%= user.username %></p>
+    </div>
+    <% date = posts[i].uploadDate%>
+    <%year = date.getFullYear()%>
+    <%month = date.getMonth()+1%>
+    <%dt = date.getDate()%>
+    
+    <%if (dt < 10) {%>
+      <%dt = '0' + dt%>
+    <%}%>
+    <%if (month < 10) {%>
+      <%month = '0' + month%>
+    <% } %> 
+    <p style="font-size: small; position: relative; top: 15px; right: 50px;" class="text-muted d-inline"><%= year+'-' + month + '-'+dt %></p>
+    <div class="dropdown d-inline" style="margin-left: 10em;">
+      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Options
+      </button>
+      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <a class="dropdown-item text-primary" href="/home/profile/<%= posts[i]._id %>">Edit Post</a>
+        <form action="/home/profile/<%= posts[i]._id %>?_method=DELETE" class="validated-form" method="POST" novalidate>
+          <button type="submit" class="dropdown-item text-danger">Delete Post</button>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="exampleCheck1" required>
+            <label class="form-check-label text-muted" for="exampleCheck1">are you sure..</label>
+          </div>
+        </form>
+        <a class="dropdown-item disabled" href="#">Something else here</a>
+      </div>
+    </div>
+  </div>
+
+
+    <div
+      id="carouselExampleControls"
+      class="carousel slide"
+      data-ride="carousel"
+      data-interval="false"
+    >
+      <div class="carousel-inner">
+        <% posts[i].post.forEach((img,i)=>{ %>
+        <div class="carousel-item <%= i===0 ? 'active' : '' %>">
+          <img style="margin-top: 0.7em;" class="d-block w-100" src="<%= img.url %>" alt="..." />
+        </div>
+        <% }) %>
+      </div>
+      <% if(posts[i].post.length>1){ %>
+      <a
+        class="carousel-control-prev"
+        href="#carouselExampleControls"
+        role="button"
+        data-slide="prev"
+      >
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+      </a>
+      <a
+        class="carousel-control-next"
+        href="#carouselExampleControls"
+        role="button"
+        data-slide="next"
+      >
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+      </a>
+      <% } %>
+    </div>
+
+
+    <p style="color: white;" id="showLikes"><%= posts[i].likes.length %></p>
+    <div class="mb-2">
+      <button id="like" class="btn btn-primary">Like</button>
+      <button id="commentbtn" class="btn btn-info ml-3">Comment</button>
+    </div>
+    <p style="color: white;"><%= posts[i].description %></p>
+    <iframe id="commentframe" class="text-center" width="420px" height="400px" src="/home/<%= posts[i]._id %>/comments" frameborder="0" style="border: 1px solid grey; display: none;"></iframe>
+  </div>
+  <% } %>
+  <% }else{ %>
+    <h1 class="text-center my-auto text-danger">Zero Posts</h1>
+    <p class="text-muted text-center">go ahead add some posts and show them to your friends...</p>
+    <% } %> 
+</div>
+
+<script>
+  let isPressed = false;
+  let commentFrame = document.querySelectorAll('#commentframe');
+  let commentBtns = document.querySelectorAll('#commentbtn');
+  for(let i=0; i<commentBtns.length; i++){
+    commentBtns[i].addEventListener('click',function(e){
+      if(!isPressed){
+        commentFrame[i].style.display = 'inline';
+        console.log('clicked upper');
+        commentFrame[i].scrollIntoView({
+          behavior:'smooth',
+          block:'nearest'
+        });
+        isPressed = true;
+      }else{
+        commentFrame[i].style.display = 'none';
+        isPressed = false;
+        console.log('clicked lower');
+      };
+      });
+  };
+
+</script>

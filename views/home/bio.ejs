@@ -1,0 +1,79 @@
+<%layout('./layouts/boilerplate.ejs') %>
+
+
+<div class="mt-5">
+<h1 class="text-center">Edit Your Bio</h1>
+
+<form <% if(!bio.length){ %>
+  action="/home/settings/bio" <% }else{ %>
+  action="/home/settings/bio?_method=PUT" <% } %> method="POST">
+  <div class="form-group">
+    <label for="belongsTo">Lives In</label>
+    <input
+      type="text"
+      class="form-control"
+      id="belongsTo"
+      placeholder="Enter Here"
+      name="belongsTo"
+      <% if(bio.length){ %>
+      value="<%= bio[0].belongsTo %>"
+      <% } %> 
+    />
+  </div>
+  <div class="form-group mb-3">
+    <label for="userDescription">Description</label>
+    <input
+      type="text"
+      class="form-control"
+      id="userDescription"
+      placeholder="Enter Here"
+      name="userDescription"
+      <% if(bio.length){ %> 
+      value="<%= bio[0].userDescription %>"
+      <% } %> 
+    />
+  </div>
+  <div class="row">
+    <legend class="col-form-label col-sm-2 pt-0">Work Status</legend>
+    <div class="col-sm-10">
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="radio"
+          name="workStatus"
+          id="employed"
+          value="Employed"
+          checked
+        />
+        <label class="form-check-label" for="employed"> Employed </label>
+      </div>
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="radio"
+          name="workStatus"
+          id="student"
+          value="Student"
+        />
+        <label class="form-check-label" for="student"> Student </label>
+      </div>
+      <div class="form-check disabled">
+        <input
+          class="form-check-input"
+          type="radio"
+          name="workStatus"
+          id="lookingforjob"
+          value="Looking for Job"
+        />
+        <label class="form-check-label" for="lookingforjob">
+          Looking for Job
+        </label>
+      </div>
+    </div>
+  </div>
+
+<hr>
+
+  <button type="submit" class="btn btn-success">Submit</button>
+</form>
+</div>

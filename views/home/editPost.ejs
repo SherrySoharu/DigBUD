@@ -1,0 +1,46 @@
+<% layout('./layouts/boilerplate.ejs') %>
+
+<h1 class="text-center">Edit Page</h1>
+
+<form action="/home/profile/<%= post._id %>?_method=PUT" method="POST" enctype="multipart/form-data">
+    <div class="form-group">
+      <label for="post">Post Link</label>
+      <input
+        type="file"
+        class="form-control"
+        id="post"
+        aria-describedby="emailHelp"
+        placeholder="Enter post link"
+        name="post"        
+        multiple
+      />
+    </div>
+
+    <% if(post.post.length > 1){ %>
+      <div class="mt-2"> 
+        <% post.post.forEach(function(img,i){ %> 
+            <img style="height: 100px; width: 100px;" src="<%= img.thumbnail %>" class="img-thumbnail" alt="...">
+            <div class="form-check-inline">
+              <input type="radio" id="image-<%= i %>" name="deleteImages[]" value="<%= img.filename %>">
+            </div>
+            <label for="image-<%= i %>">Delete Image</label>
+          <% }) %>
+      </div>
+    <% } %>
+
+    <div class="form-group">
+      <label for="description">Description</label>
+      <input
+        type="description"
+        class="form-control"
+        id="description"
+        aria-describedby="descriptionHelp"
+        placeholder="Enter description"
+        name="description"
+        value="<%= post.description %>"
+      />
+    </div>
+    <div class="mx-auto text-center">
+      <button type="submit" class="btn btn-success">Submit</button>
+    </div>
+  </form>

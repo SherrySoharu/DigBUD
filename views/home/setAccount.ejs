@@ -1,0 +1,37 @@
+<% layout('./layouts/boilerplate.ejs') %>
+
+<h1>these are account settings.</h1>
+<form action="/home/setaccount?_method=PUT" method="POST">
+<div class="row">
+    <legend class="col-form-label col-sm-2 pt-0">Account</legend>
+    <div class="col-sm-10">
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="radio"
+          name="isPrivate"
+          id="public"
+          value='false'
+          <% if(user.isPrivate === 'false'){ %>
+          checked
+          <% } %>
+        />
+        <label class="form-check-label" for="public"> Public </label>
+      </div>
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="radio"
+          name="isPrivate"
+          id="private"
+          value='true'
+          <% if(user.isPrivate === 'true'){ %>
+            checked
+            <% } %> 
+        />
+        <label class="form-check-label" for="private"> Private </label>
+      </div>
+    </div>
+  </div>
+  <button class="btn btn-success" type="submit">Submit</button>
+</form>

@@ -1,0 +1,260 @@
+<% layout('./layouts/boilerplate.ejs') %>
+
+
+<div style="display: flex; margin-top: 2em;">
+    <section>
+        <ul style="overflow-y: scroll; height: 48em;">
+            <% for(let user of followingUsers){ %> 
+                <button style="background-color: white;" id="select" class="tegs"><li class="chat_users"><%= user.username %></li></button>
+            <% } %>
+        </ul>
+    </section>
+<section class="msger" style="margin-left: 5em;">
+    <header class="msger-header">
+      <div class="msger-header-title">
+        <i class="fas fa-comment-alt"></i> SimpleChat
+      </div>
+      <div class="msger-header-options">
+        <span><i class="fas fa-cog"></i></span>
+      </div>
+    </header>
+  
+    <main id="chatBox" class="msger-chat">
+      <div class="msg left-msg">
+        <div
+         class="msg-img"
+         style="background-image: url(https://image.flaticon.com/icons/svg/327/327779.svg)"
+        ></div>
+  
+        <div class="msg-bubble">
+          <div class="msg-info">
+            <div class="msg-info-name">BOT</div>
+            <div class="msg-info-time">12:45</div>
+          </div>
+  
+          <div id="incoming-txt" class="msg-text">
+            Hi, welcome to MemerChat! Go ahead and select one of your friend. 😄
+          </div>
+        </div>
+      </div>
+  
+      <div class="msg right-msg">
+        <div
+         class="msg-img"
+         style="background-image: url(https://image.flaticon.com/icons/svg/145/145867.svg)"
+        ></div>
+  
+        <div class="msg-bubble">
+          <div class="msg-info">
+            <div class="msg-info-name">Sajad</div>
+            <div class="msg-info-time">12:46</div>
+          </div>
+  
+          <div id="outgoing-txt" class="msg-text">
+            After selecting, do some chatting with your friend!!!
+          </div>
+        </div>
+      </div>
+    </main>
+  
+    <form id="form" class="msger-inputarea">
+      <input id="input" type="text" class="msger-input" placeholder="Enter your message...">
+      <button id="sendBtn" type="submit" class="msger-send-btn">Send</button>
+    </form>
+  </section>
+  </div>
+
+  <script>
+      const followingUsers = '<%- JSON.stringify(followingUsers) %>';
+      let followingPics = '<%- JSON.stringify(followingPics) %>';
+      let currentUserPic = '<%- JSON.stringify(userPic) %>';
+      const followingObject = JSON.parse(followingUsers);
+      const mappedIds = followingObject.map(el=>el._id);
+      const User = '<%- JSON.stringify(currentUser) %>';
+      const currentUser = JSON.parse(User);
+      currentUserPic = JSON.parse(currentUserPic);
+      followingPics = JSON.parse(followingPics);
+  </script>
+
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket = io();
+
+const select = document.querySelectorAll('#select');
+const form = document.getElementById('form');
+const input = document.getElementById('input');
+const sendBtn = document.getElementById('sendBtn');
+const chatBox = document.getElementById('chatBox');
+const selectedChat = [];
+
+
+for(let i = 0; i<select.length; i++){
+    select[i].addEventListener('click',function(e){
+        selectedChat.pop();
+        for(let i = 0; i<select.length; i++){
+            select[i].style.backgroundColor = 'white';
+        };
+        select[i].style.backgroundColor = 'grey';
+        const selectedId = mappedIds[i];
+        socket.emit('currentId',currentUser,selectedId);
+        selectedChat.push(selectedId);
+    });
+};
+
+form.addEventListener('submit',function(e){
+        e.preventDefault();
+        if(input.value){
+          socket.emit('chat message',input.value,currentUser._id,selectedChat);
+          input.value = '';
+        };
+});
+
+// socket.emit('connected user',currentUser._id);
+
+function pivot(arr, start = 0, end = arr.length - 1){
+    function swap(array,i,j){
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    };
+
+    var pivot = arr[start].date.toString();
+    var swapIdx = start;
+
+    for(var i = start+1; i<arr.length; i++){
+        if(pivot>arr[i].date.toString()){
+            swapIdx++;
+            swap(arr,swapIdx,i)
+        }
+    }
+    swap(arr,start,swapIdx);
+    return swapIdx;
+};
+
+function msgSort(arr, left = 0, right = arr.length -1){
+    if(left<right){
+        let pivotIndex = pivot(arr, left, right);
+        msgSort(arr, left, pivotIndex - 1);
+        msgSort(arr,pivotIndex + 1, right);
+    }
+    return arr;
+};
+
+socket.on('output message',(sentMsg,receivedMsg,profilePics,friendName)=>{
+    var messages = [];
+    for(let msg of sentMsg){
+      messages.push(msg);
+    };
+    for(let msg of receivedMsg){
+      messages.push(msg);
+    }
+    var result = msgSort(messages);
+    chatBox.innerHTML = '';
+    for(let msg of result){
+      let item = document.createElement('div');
+      if(msg.author.toString() === currentUser._id.toString()){
+        item.className = 'msg right-msg';
+      }else{
+        item.className = 'msg left-msg';
+      }
+      let profile = document.createElement('div');
+      profile.className = 'msg-img';
+      let userProfilePic = profilePics.filter(el=>el.author.toString() === msg.author.toString());
+      if(userProfilePic.length){
+        profile.style.backgroundImage = 'url('+userProfilePic[0].pic.url+')';
+      }else{
+        profile.style = 'background-image: url(https://cdn.pixabay.com/photo/2017/06/13/12/53/profile-2398782_1280.png)';
+      }
+      let content = document.createElement('div');
+      content.className = 'msg-bubble';
+      let contentInfo = document.createElement('div');
+      contentInfo.className = 'msg-info';
+      let name = document.createElement('div');
+      name.className = 'msg-info-name';
+      let time = document.createElement('div');
+      time.className = 'msg-info-time';
+      let contentText = document.createElement('div');
+      contentText.className = 'msg-text';
+
+      contentText.innerText = msg.message;
+      // let date = msg.date;
+      // let year = date.getFullYear();
+      // let month = date.getMonth()+1;
+      // let dt = date.getDate();
+      // if (dt < 10) {
+      //   dt = '0' + dt;
+      // }
+      // if (month < 10) {
+      //   month = '0' + month;
+      // }
+      // let finalDate = year+'-' + month + '-'+dt;
+      // console.log('final date',finalDate);
+      time.innerText = msg.date;
+      console.log('yuo just did it dumbass',msg.date);
+      if(msg.author.toString() === currentUser._id.toString()){
+        name.innerText = 'You';
+      }else{
+        name.innerText = friendName.username;
+      }
+      contentInfo.appendChild(name);
+      contentInfo.appendChild(time);
+      content.appendChild(contentInfo);
+      content.appendChild(contentText);
+      item.appendChild(profile);
+      item.appendChild(content);
+      chatBox.appendChild(item);
+      window.scrollTo(0, document.body.scrollHeight);
+    };
+    chatBox.scrollTop = chatBox.scrollHeight;
+});
+
+socket.on('chat message',function(msg){
+  let item = document.createElement('div');
+  if(msg.author.toString() === currentUser._id.toString()){
+    item.className = 'msg right-msg';
+  }else{
+    item.className = 'msg left-msg';
+  }
+  let profile = document.createElement('div');
+  profile.className = 'msg-img';
+
+  let followingPic = followingPics.filter(el=>el.author.toString() === msg.author.toString());
+  if(msg.author.toString() === currentUser._id.toString() && currentUserPic){
+    profile.style.backgroundImage = 'url('+currentUserPic.pic.url+')';
+  }else if(followingPic.length){
+    profile.style.backgroundImage = 'url('+followingPic[0].pic.url+')';
+  }else{
+    profile.style = 'background-image: url(https://cdn.pixabay.com/photo/2017/06/13/12/53/profile-2398782_1280.png)';
+  }
+  let content = document.createElement('div');
+  content.className = 'msg-bubble';
+  let contentInfo = document.createElement('div');
+  contentInfo.className = 'msg-info';
+  let name = document.createElement('div');
+  name.className = 'msg-info-name';
+  let time = document.createElement('div');
+  time.className = 'msg-info-time';
+  let contentText = document.createElement('div');
+  contentText.className = 'msg-text';
+
+  contentText.innerText = msg.message;
+  time.innerText = msg.date;
+  let followingName = followingObject.filter(el=>el._id.toString() === msg.author.toString());
+  if(msg.author.toString() === currentUser._id.toString()){
+    name.innerText = 'You';
+  }else{
+    name.innerText = followingName[0].username;
+  }  
+  contentInfo.appendChild(name);
+  contentInfo.appendChild(time);
+  content.appendChild(contentInfo);
+  content.appendChild(contentText);
+  item.appendChild(profile);
+  item.appendChild(content);
+  chatBox.appendChild(item);
+  window.scrollTo(0, document.body.scrollHeight);
+  chatBox.scrollTop = chatBox.scrollHeight;
+});
+
+</script>
